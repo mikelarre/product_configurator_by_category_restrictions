@@ -14,7 +14,7 @@
         #"security/ir.model.access.csv",
         "views/product_category_view.xml",
         "views/product_view.xml",
-        "views/sale_order_view.xml",
+        #"views/sale_order_view.xml",
     ],
     'demo': [],
     'installable': True,

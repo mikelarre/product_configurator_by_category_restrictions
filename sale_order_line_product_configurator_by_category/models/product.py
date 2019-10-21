@@ -30,7 +30,6 @@ class ProductProduct(models.Model):
         relation="product_restriction_product_product_rel",
         column1="restriction_product_id",
         column2="product_id", string="Restricted Products",
-        domain="[('categ_id', '=', restricted_by)]"
         )
     # restricted_by_category = fields.Many2one(
     #     comodel_name="product.category",
