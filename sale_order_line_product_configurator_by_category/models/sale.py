@@ -39,7 +39,7 @@ class SaleOrderLine(models.Model):
 
     def _get_last_line(self):
         last_line = self.order_id.order_line.filtered(
-            lambda x: x.product_id or x.display_type=='line_section').sorted(
+            lambda x: x.product_id or x.display_type == 'line_section').sorted(
             "sequence")[-1:]
         return last_line
 
@@ -47,7 +47,7 @@ class SaleOrderLine(models.Model):
     def _get_domain(self):
         self.ensure_one()
         last_line = self._get_last_line()
-        restricts = last_line.product_id.restricted_products.id
+        restricts = last_line.product_id.restricted_products._ids
         if restricts or not last_line.display_type == 'line_section':
             return restricts
         return False

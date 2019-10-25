@@ -36,8 +36,8 @@
                             </div>
                                 <label string="Restricted By" for="restricted_by_products"/>
                                 <field name="restricted_by_products" domain="[('categ_id', '=', restricted_by)]" nolabel="1" col="2"  />
-                                <label string="Restricted Products" for="restricted_products"/>
                         </div>
+                        <label string="Restricted Products" for="restricted_products"/>
                         <field name="restricted_products" nolabel="1" col="2" />
                         <field name="categ_id" invisible="1"  />
                     </group>

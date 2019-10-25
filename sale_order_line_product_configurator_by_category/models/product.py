@@ -1,7 +1,6 @@
 # Copyright 2019 Mikel Arregi Etxaniz - AvanzOSC
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from odoo import api, fields, models
-from odoo.tools.safe_eval import safe_eval
 
 
 class ProductProduct(models.Model):
@@ -37,12 +36,12 @@ class ProductProduct(models.Model):
     #     comodel_name="product.category",
     #     related="categ_id.restricted_by", store=True)
 
-    @api.multi
+    @api.depends('restricted_by_products')
     def _compute_restricted_products(self):
         for product in self:
             products = self.search([
                 ('restricted_by_products', '=', product.id)])
-            self.restricted_products = [(6, 0, [products._ids])]
+            product.restricted_products = [(6, 0, products._ids)]
 
     @api.multi
     def button_clear_restrictions(self):
@@ -61,6 +60,8 @@ class ProductProduct(models.Model):
                                              not x.restricted_by_products)
             variants.write(
                 {'restricted_by_products': [(6, 0, restriction_ids)]})
+            if product.force_restrict_copy:
+                product.force_restrict_copy = False
 
     @api.multi
     def button_category_restrict_products(self):
