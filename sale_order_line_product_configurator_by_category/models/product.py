@@ -1,6 +1,7 @@
 # Copyright 2019 Mikel Arregi Etxaniz - AvanzOSC
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from odoo import api, fields, models
+from odoo.tools.safe_eval import safe_eval
 
 
 class ProductProduct(models.Model):
@@ -31,6 +32,7 @@ class ProductProduct(models.Model):
         column1="restriction_product_id",
         column2="product_id", string="Restricted Products",
         )
+    force_restrict_copy = fields.Boolean(string="Force Copy")
     # restricted_by_category = fields.Many2one(
     #     comodel_name="product.category",
     #     related="categ_id.restricted_by", store=True)
@@ -42,6 +44,32 @@ class ProductProduct(models.Model):
                 ('restricted_by_products', '=', product.id)])
             self.restricted_products = [(6, 0, [products._ids])]
 
+    @api.multi
+    def button_clear_restrictions(self):
+        for product in self:
+            product.restricted_by_products = [(5,)]
+
+    @api.multi
+    def button_copy_to_siblings(self):
+        for product in self:
+            restriction_ids = product.restricted_by_products._ids
+            force = product.force_restrict_copy
+            variants = product.product_tmpl_id.product_variant_ids \
+                .filtered(lambda x: x.id != product.id)
+            if not force:
+                variants = variants.filtered(lambda x:
+                                             not x.restricted_by_products)
+            variants.write(
+                {'restricted_by_products': [(6, 0, restriction_ids)]})
+
+    @api.multi
+    def button_category_restrict_products(self):
+        for product in self:
+            restrict_category = product.categ_id.restricted_by
+            categ_products = product.search([('categ_id', '=',
+                                        restrict_category.id)])
+            for categ_product in categ_products:
+                product.restricted_by_products = [(4, categ_product.id)]
 
 # class ProductRestrict(models.Model):
 #     _name = "product.restrict"
