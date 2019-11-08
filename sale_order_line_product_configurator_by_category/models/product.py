@@ -6,18 +6,6 @@ from odoo import api, fields, models
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
-    # restricted_products = fields.Many2many(
-    #     comodel_name="product.restrict", string="Restricted Products",
-    #     inverse_name="product_id")
-    # restricted_by_products = fields.Many2many(
-    #     comodel_name="product.restrict", string="Restricted Products",
-    #     inverse_name="restricted_product_id")
-    # restricts_to_category = fields.Many2one(
-    #     comodel_name="product.category",
-    #     related="categ_id.category_restrict.restricts_to", store=True)
-    # restricted_by_category = fields.Many2one(
-    #     comodel_name="product.category",
-    #     related="categ_id.category_restrict.restricted_by", store=True)
     restricted_products = fields.Many2many(
         comodel_name="product.product",
         relation="product_restricted_product_product_rel",
@@ -29,12 +17,9 @@ class ProductProduct(models.Model):
         comodel_name="product.product",
         relation="product_restriction_product_product_rel",
         column1="restriction_product_id",
-        column2="product_id", string="Restricted Products",
+        column2="product_id", string="Restricted by Products",
         )
     force_restrict_copy = fields.Boolean(string="Force Copy")
-    # restricted_by_category = fields.Many2one(
-    #     comodel_name="product.category",
-    #     related="categ_id.restricted_by", store=True)
 
     @api.depends('restricted_by_products')
     def _compute_restricted_products(self):
@@ -68,17 +53,6 @@ class ProductProduct(models.Model):
         for product in self:
             restrict_category = product.categ_id.restricted_by
             categ_products = product.search([('categ_id', '=',
-                                        restrict_category.id)])
+                                              restrict_category.id)])
             for categ_product in categ_products:
                 product.restricted_by_products = [(4, categ_product.id)]
-
-# class ProductRestrict(models.Model):
-#     _name = "product.restrict"
-#     _rec_name = "product_id"
-#
-#     product_id = fields.Many2one(comodel_name="product.product",
-#                                  string="Product")
-#     restricted_by_product_id = fields.Many2one(
-#         comodel_name="product.product",
-#         string="Restricted Product", domain="[('categ_id', '=', "
-#         "categ_id.category_restrict.restricted_by)])")

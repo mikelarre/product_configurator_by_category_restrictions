@@ -5,16 +5,14 @@
     "version": "12.0.1.0.0",
     "license": "AGPL-3",
     "depends": [
-        "sale",
+        "sale", "stock",
     ],
     "author": "AvanzOSC",
     "website": "http://www.avanzosc.es",
     "category": "",
     "data": [
-        #"security/ir.model.access.csv",
         "views/product_category_view.xml",
         "views/product_view.xml",
-        #"views/sale_order_view.xml",
     ],
     'demo': [],
     'installable': True,
