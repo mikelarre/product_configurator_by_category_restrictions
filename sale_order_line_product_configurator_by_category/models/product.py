@@ -52,7 +52,7 @@ class ProductProduct(models.Model):
     def button_category_restrict_products(self):
         for product in self:
             restrict_category = product.categ_id.restricted_by
-            categ_products = product.search([('categ_id', '=',
+            categ_products = product.search([('categ_id', 'child_of',
                                               restrict_category.id)])
             for categ_product in categ_products:
                 product.restricted_by_products = [(4, categ_product.id)]

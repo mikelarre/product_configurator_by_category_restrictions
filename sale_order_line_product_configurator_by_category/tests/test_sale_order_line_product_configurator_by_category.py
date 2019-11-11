@@ -11,7 +11,8 @@ class SaleOrderLineProductConfiguratorTest(common.SavepointCase):
         super(SaleOrderLineProductConfiguratorTest, cls).setUpClass()
         cls.product_model = cls.env['product.product']
         cls.category_model = cls.env['product.category']
-        cls.bom_model = cls.env['sale.order']
+        cls.sale_model = cls.env['sale.order']
+        cls.partner_model = cls.env['res.partner']
         cls.category1 = cls.category_model.create({
             'name': 'Category1'
         })
@@ -42,13 +43,25 @@ class SaleOrderLineProductConfiguratorTest(common.SavepointCase):
             'product_tmpl_id': cls.product3.product_tmpl_id.id,
             'categ_id': cls.category3.id,
         })
+        cls.partner = cls.partner_model.create({
+            'name': 'partner1',
+        })
 
     def test_product_id_onchange(self):
+        sale_data = {
+            'partner_id': self.partner.id,
+            'partner_invoice_id': self.partner.id,
+            'partner_shipping_id': self.partner.id,
+            'picking_policy': 'direct',
+        }
+        self.sale_order = self.sale_model.create(sale_data)
         line1 = self.env['sale.order.line'].new({
             'product_id': self.product1.id,
+            'order_id': self.sale_order.id,
         })
         line2 = self.env['sale.order.line'].new({
             'product_id': self.product2.id,
+            'order_id': self.sale_order.id,
         })
         res1 = line1.onchange_order_line()
         res2 = line2.onchange_order_line()
@@ -57,18 +70,18 @@ class SaleOrderLineProductConfiguratorTest(common.SavepointCase):
         self.assertFalse(res2)
 
     def test_product_restrictions(self):
-        self.assertEqual(self.product1.restricted_products._ids,
-                         list(self.product2.id))
-        self.assertEqual(self.product2.restricted_products._ids,
-                         list(self.product3.id))
-        self.assertEqual(self.product3.restricted_by_products._ids,
-                         list(self.product2.id))
+        self.assertEqual(self.product1.restricted_products.ids,
+                         [self.product2.id])
+        self.assertEqual(self.product2.restricted_products.ids,
+                         [self.product3.id])
+        self.assertEqual(self.product3.restricted_by_products.ids,
+                         [self.product2.id])
         self.product3.button_clear_restrictions()
-        self.assertFalse(self.product3.restricted_by_products._ids)
+        self.assertFalse(self.product3.restricted_by_products.ids)
         self.product3.button_category_restrict_products()
-        self.assertEqual(self.product3.restricted_by_products._ids,
-                         list(self.product2.id))
-        self.assertFalse(self.product31.restricted_by_products._ids)
+        self.assertEqual(self.product3.restricted_by_products.ids,
+                         [self.product2.id])
+        self.assertFalse(self.product31.restricted_by_products.ids)
         self.product3.button_copy_to_siblings()
-        self.assertEqual(self.product31.restricted_by_products._ids,
-                         list(self.product2.id))
+        self.assertEqual(self.product31.restricted_by_products.ids,
+                         [self.product2.id])
